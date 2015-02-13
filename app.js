@@ -1,37 +1,42 @@
 var objc = require('NodObjC');
 var $ = require('NodObjC');
 $.import('Foundation');
-$.import('/System/Library/PrivateFrameworks/MessagesKit.framework');
+$.import('MessagesKit');
+
+var messageHelper = $.SOMessageHelper('alloc')('init');
+var buddyHelper = $.SOBuddyHelper('alloc')('init');
+var chatHelper = $.SOChatHelper('alloc')('init');
+
 var pool = $.NSAutoreleasePool('alloc')('init');
-var array = $.NSMutableArray('alloc')('init');
+
 //var cDUnknownBlockType = $.CDUnknownBlockType('alloc')('init')
-var messageKit = $.SOMessageHelper('alloc')('init');
-console.log(messageKit);
-console.log(messageKit.methods());
-array('addObject', $('+15415809414'));
-console.log(array);
+console.log(messageHelper);
+console.log(messageHelper.methods());
+console.log(buddyHelper);
+console.log(buddyHelper.methods());
+console.log(chatHelper);
+console.log(chatHelper.methods());
 
-// set up the app delegate
-var CompletionObj = $.NSObject.extend('MessagesKit');
-CompletionObj.addMethod('completionBlock:', 'v@:@', function (self, _cmd, notif, etc) {
-
-	// var systemStatusBar = $.NSStatusBar('systemStatusBar');
-	// statusMenu = systemStatusBar('statusItemWithLength', $.NSVariableStatusItemLength);
-	// statusMenu('retain');
-	// var title = $.NSString('stringWithUTF8String', "Hello World");
-	// statusMenu('setTitle', title);
-});
-CompletionObj.register();
 // - (void)startNewConverstaionInMessages; // just lol at the typo in Apple's headers
-messageKit("startNewConverstaionInMessages");
+// messageHelper("startNewConverstaionInMessages"); // works but is empty?
+console.log(messageHelper("openShareKit")); // null
 
-console.log('start new conversation successful i guess?');
+console.log(messageHelper("newMessageString")); // literally returns the string "New Message..."
 
-console.log(messageKit("iMessageURLForAddress", $('cam.henlin@gmail.com')));
+console.log(buddyHelper("buddyLists")); // null, even with buddy list up
+
+var chatTitle = $.NSString('stringWithUTF8String', 'Cam downvotes with normal use');
+// console.log(buddyHelper("openConversationWithBuddyID", chatTitle, "serviceName", $("iMessage"))); sorta works but mangles spaces, works GREAT for phone numbers and emails
+// console.log(buddyHelper("openConversationWithBuddyDetails", null)); sorta works but only for null, not sure how to insert actual buddy details
+
+console.log(chatHelper("chatListBlocking")); // results in a timeout
 
 // + (id)iMessageURLForAddress:(id)arg1;
 
-// - (void)sendMessageText:(NSString *)arg1 toRecipients:(NSArray *)arg2 onService:(NSString *)arg3;
-messageKit("sendMessageText", $("test"), "toRecipients", $("+15415809414"), "onService", $("iMessage"));
+// - (void)sendMessageText:(id)arg1 toRecipients:(id)arg2 onService:(id)arg3 withCompletionBlock:(CDUnknownBlockType)arg4;
+console.log(messageHelper("sendMessageText", $("test message1"), "toRecipient", $("cam.henlin@gmail.com"), "withCompletionBlock", null)); // null with no apparent effect
 
-console.log('loaded framework');
+var array = $.NSMutableArray('alloc')('init');
+array('addObject', $('cam.henlin@gmail.com'));
+console.log(messageHelper("sendMessageText", $("test message2"), "toRecipients", array, "onService", $("iMessage"), "withCompletionBlock", null)); // null with no apparent effect
+
